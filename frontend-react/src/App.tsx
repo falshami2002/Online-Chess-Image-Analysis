@@ -62,8 +62,6 @@ export default function App() {
           </div>
         )}
       </div>
-
-      <footer className="mt-8 text-gray-500 text-xs sm:text-sm">© 2025 ChessML</footer>
     </div>
   )
 }
