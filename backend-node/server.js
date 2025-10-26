@@ -11,7 +11,7 @@ app.use(cors());
 
 const PY_BACKEND_URL = process.env.PY_BACKEND_URL || "https://ml-model-microservice.onrender.com/predict"; 
 
-app.post("/api/predict", upload.single("file"), async (req, res) => {
+app.post("/predict", upload.single("file"), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: "No file uploaded" });
