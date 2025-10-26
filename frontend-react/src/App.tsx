@@ -14,7 +14,7 @@ export default function App() {
     const form = new FormData()
     form.append("file", file)
     try {
-      const res = await fetch("/api/predict", { method: "POST", body: form })
+      const res = await fetch("https://node-backend-8ubs.onrender.com/predict", { method: "POST", body: form })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Prediction failed")
       setFen(data.fen)
