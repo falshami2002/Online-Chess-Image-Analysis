@@ -4,7 +4,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://node-backend-8ubs.onrender.com/:splat"
+  to = "https://node-backend-8ubs.onrender.com/"
   status = 200
   force = true
 
