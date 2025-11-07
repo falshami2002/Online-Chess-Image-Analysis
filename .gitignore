@@ -1,2 +1,4 @@
 backend-node/node_modules/
 frontend-react/node_modules/
+test
+model-fastapi/chessml.pem
