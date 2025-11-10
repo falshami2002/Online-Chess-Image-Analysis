@@ -14,7 +14,7 @@ export default function App() {
   const [error, setError] = useState("")
   const [copied, setCopied] = useState(false)
   
-  const { isAuthed, loading: authLoading, saveGame, getGames } = useAuth();
+  const { isAuthed, loading: _authLoading, saveGame, getGames } = useAuth();
 
   const needSignUp = () => toast("Please sign up or log in to save games!");
 
