@@ -9,7 +9,7 @@ export const AuthModals = () => {
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
 
-    const { isAuthed, loading, login, register, logout } = useAuth();
+    const { login, register, logout: _logout } = useAuth();
 
     function closeAll() {
         setShowLogin(false);
