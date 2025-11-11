@@ -149,6 +149,29 @@ app.post("/games", verifyToken, async (req, res) => {
   }
 });
 
+// delete user game
+app.delete("/games/:gameId", verifyToken, async (req, res) => {
+  try {
+    const { gameId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(gameId)) {
+      return res.status(400).json({ error: "Invalid game id" });
+    }
+
+    const updated = await User.findOneAndUpdate(
+      { _id: req.user.id, "games._id": gameId },
+      { $pull: { games: { _id: gameId } } },
+      { new: true, projection: { _id: 0 } }
+    ).lean();
+
+    if (!updated) return res.status(404).json({ error: "Game not found" });
+
+    return res.status(200).json({ ok: true, deletedId: gameId });
+  } catch (err) {
+    console.error("Delete game error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 // middleware to verify JWT
 function verifyToken(req, res, next) {
