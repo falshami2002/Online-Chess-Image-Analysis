@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, type Dispatch, type SetStateAction } from "react"
 import { useAuth } from "./context/AuthContext"
 import { GamesDisplay } from "./components/Components"
 import type { Game } from "./components/Components"
@@ -13,12 +13,14 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [copied, setCopied] = useState(false)
-  
+
+  const [showTitleModal, setShowTitleModal] = useState(false)
+  const [titleInput, setTitleInput] = useState("")
+
   const { isAuthed, loading: _authLoading, saveGame, getGames } = useAuth();
 
   const needSignUp = () => toast("Please sign up or log in to save games!");
 
-  // Load games when authed
   useEffect(() => {
     (async () => {
       if (!isAuthed) {
@@ -80,29 +82,58 @@ export default function App() {
     window.open(`https://lichess.org/editor?fen=${encodedFEN}`, "_blank")
   }
 
-  async function handleSaveGame() {
+  function handleSaveGameClick() {
     if (!fen) return;
     if (!isAuthed) return needSignUp();
+    setTitleInput(`Game ${games.length + 1}`);
+    setShowTitleModal(true);
+  }
 
-    const title = `Game ${games.length + 1}`;
+  async function confirmSaveGame() {
+    const title = (titleInput || `Game ${games.length + 1}`).trim();
     try {
-      const saved = await saveGame(fen, title); 
+      const saved = await saveGame(fen, title);
       const newItem: Game = { id: saved._id ?? String(games.length + 1), title: saved.title, fen: saved.fen };
-      setGames((prev) => [newItem, ...prev]);
-      setFen("");
-      setFile(null);
-      setView("list");
+      setGames((prev) => [...prev, newItem]);
       toast("Position saved!");
+      setShowTitleModal(false);
     } catch (e: any) {
       toast(e.message || "Failed to save game");
     }
   }
 
+  const openLichessSetter: Dispatch<SetStateAction<string>> = (next) => {
+    const value = typeof next === "function" ? (next as (prev: string) => string)(fen) : next;
+    if (!value) return;
+    setFen(value);
+    const encoded = encodeURIComponent(value.trim());
+    window.open(`https://lichess.org/editor?fen=${encoded}`, "_blank");
+  };
+
+  async function handleDeleteGame(id: number) {
+    try {
+      const res = await fetch(`https://node-backend-8ubs.onrender.com/games/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete");
+      }
+      setGames(prev => prev.filter(g => g.id !== id));
+      toast("Game deleted");
+    } catch (e: any) {
+      toast(e.message || "Delete failed");
+    }
+  }
+
   return (
     <div className="min-h-screen flex bg-gray-900 text-white">
+      {/* Sidebar */}
       <div className="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
         <div className="flex items-center justify-center px-4 py-4 border-b border-gray-700">
-          <h1 className="text-xl font-bold text-yellow-400 p-0 m-0">Games</h1> <button
+          <h1 className="text-xl font-bold text-yellow-400 p-0 m-0">Games</h1>
+          <button
             onClick={() => setView("upload")}
             className="bg-yellow-400 text-black rounded-full mx-4 mt-2 w-8 h-8 flex items-center justify-center font-bold hover:bg-yellow-300"
           >
@@ -110,12 +141,23 @@ export default function App() {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
-          {isAuthed ? games.length === 0 ? (
-            <p className="text-gray-400 text-center mt-6">No games yet</p>
-          ) : (<GamesDisplay games={games} setFen={setFen} />) : <AuthModals />}
+          {isAuthed ? (
+            games.length === 0 ? (
+              <p className="text-gray-400 text-center mt-6">No games yet</p>
+            ) : (
+              <GamesDisplay
+                games={games}
+                setFen={openLichessSetter}
+                onDelete={handleDeleteGame}
+              />
+            )
+          ) : (
+            <AuthModals />
+          )}
         </div>
       </div>
 
+      {/* Main */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10">
         {view === "upload" ? (
           <div className="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-lg p-6 flex flex-col items-center">
@@ -163,32 +205,33 @@ export default function App() {
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-center">
                   <button
                     onClick={handleCopy}
-                    className="px-6 py-2 bg-blue-500 text-black font-semibold rounded-lg hover:bg-blue-400 
-                 focus:outline-none transition"
+                    className="px-6 py-2 bg-blue-500 text-black font-semibold rounded-lg hover:bg-blue-400 transition"
                   >
                     {copied ? "Copied!" : "Copy FEN"}
                   </button>
 
                   <button
                     onClick={handleAnalyze}
-                    className="px-6 py-2 bg-blue-500 text-black font-semibold rounded-lg hover:bg-blue-400 
-                 focus:outline-none transition"
+                    className="px-6 py-2 bg-blue-500 text-black font-semibold rounded-lg hover:bg-blue-400 transition"
                   >
                     Analyze on Lichess
                   </button>
 
-                  {isAuthed ? <button
-                    onClick={handleSaveGame}
-                    className="px-6 py-2 bg-green-500 text-black font-semibold rounded-lg hover:bg-green-400 transition"
-                  >
-                    Save Game
-                  </button> : 
-                  <button
-                    onClick={needSignUp}
-                    className="px-6 py-2 bg-green-500 text-black font-semibold rounded-lg hover:bg-green-400 transition"
-                  >
-                    Save Game
-                  </button>}
+                  {isAuthed ? (
+                    <button
+                      onClick={handleSaveGameClick}
+                      className="px-6 py-2 bg-green-500 text-black font-semibold rounded-lg hover:bg-green-400 transition"
+                    >
+                      Save Game
+                    </button>
+                  ) : (
+                    <button
+                      onClick={needSignUp}
+                      className="px-6 py-2 bg-green-500 text-black font-semibold rounded-lg hover:bg-green-400 transition"
+                    >
+                      Save Game
+                    </button>
+                  )}
                   <ToastContainer/>
                 </div>
               </div>
@@ -201,6 +244,35 @@ export default function App() {
           </div>
         )}
       </div>
+
+      {showTitleModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-yellow-400 mb-3">Save Game</h3>
+            <label className="block text-sm text-gray-300 mb-2">Game title</label>
+            <input
+              value={titleInput}
+              onChange={(e) => setTitleInput(e.target.value)}
+              placeholder="e.g., Titled Tuesday Round 3"
+              className="w-full bg-gray-700 text-white rounded-md px-3 py-2 mb-4 outline-none"
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowTitleModal(false)}
+                className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-black"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSaveGame}
+                className="px-4 py-2 rounded-lg bg-green-500 text-black hover:bg-green-400 font-semibold"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
