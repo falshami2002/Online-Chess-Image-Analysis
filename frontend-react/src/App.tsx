@@ -17,7 +17,7 @@ export default function App() {
   const [showTitleModal, setShowTitleModal] = useState(false)
   const [titleInput, setTitleInput] = useState("")
 
-  const { isAuthed, loading: _authLoading, saveGame, getGames } = useAuth();
+  const { isAuthed, loading: _authLoading, saveGame, getGames, logout } = useAuth();
 
   const needSignUp = () => toast("Please sign up or log in to save games!");
 
@@ -28,7 +28,7 @@ export default function App() {
         return;
       }
       try {
-        const list = await getGames(); 
+        const list = await getGames();
         const mapped: Game[] = list.map((g: any, i: number) => ({
           id: g._id ?? String(i),
           title: g.title,
@@ -127,6 +127,17 @@ export default function App() {
     }
   }
 
+  async function handleLogout() {
+  try {
+    await logout();
+    setGames([]);
+    setView("list"); 
+    toast("Logged out successfully");
+  } catch (e: any) {
+    toast(e?.message || "Logout failed");
+  }
+}
+
   return (
     <div className="min-h-screen flex bg-gray-900 text-white">
       {/* Sidebar */}
@@ -140,6 +151,7 @@ export default function App() {
             +
           </button>
         </div>
+
         <div className="flex-1 overflow-y-auto">
           {isAuthed ? (
             games.length === 0 ? (
@@ -155,6 +167,17 @@ export default function App() {
             <AuthModals />
           )}
         </div>
+
+        {isAuthed && (
+          <div className="border-t border-gray-700 p-3">
+            <button
+              onClick={handleLogout}
+              className="w-full py-2 text-sm rounded-md bg-gray-700 hover:bg-gray-600 transition text-black"
+            >
+              Log out
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main */}
@@ -232,7 +255,7 @@ export default function App() {
                       Save Game
                     </button>
                   )}
-                  <ToastContainer/>
+                  <ToastContainer />
                 </div>
               </div>
             )}

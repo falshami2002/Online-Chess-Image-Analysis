@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         return;
       }
-      const data = await res.json(); 
+      const data = await res.json();
       setUser({ id: data.id, email: data.email });
     } catch {
       setUser(null);
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) throw new Error((await res.text()) || "Registration failed");
-    await login(email, password); 
+    await login(email, password);
   };
 
   // login
@@ -71,14 +71,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ email, password }),
     });
     if (!res.ok) throw new Error((await res.text()) || "Login failed");
-    await refreshSession(); 
+    await refreshSession();
   };
 
   // logout
   const logout = async () => {
-    await apiFetch("/logout", { method: "POST" }).catch(() => {});
-    setUser(null);
-  };
+  const res = await apiFetch("/logout", { method: "POST" }); 
+  if (!res.ok) throw new Error((await res.text()) || "Logout failed");
+  setUser(null);
+};
 
   // save a game
   const saveGame = async (fen: string, title: string) => {
