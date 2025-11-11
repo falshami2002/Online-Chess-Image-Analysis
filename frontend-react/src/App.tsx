@@ -50,6 +50,7 @@ export default function App() {
       const res = await fetch("https://node-backend-8ubs.onrender.com/predict", {
         method: "POST",
         body: form,
+        credentials: "include",
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Prediction failed")
