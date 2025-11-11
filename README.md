@@ -5,7 +5,7 @@ Built with React, Node.js, FastAPI, TensorFlow, and OpenCV, featuring secure JWT
 
 🌐 Live Demo
 
-The project is hosted and live here:
+The project is hosted and live here:\n
 👉 https://online-chess-image-analysis.netlify.app/
 
 🚀 Overview
@@ -22,10 +22,10 @@ Fully containerized for scalability with Docker.
 
 ⚙️ Tech Stack
 
-Frontend: React, TailwindCSS
-Backend: Node.js, Express, JWT, MongoDB
-Inference Service: FastAPI, TensorFlow, OpenCV
-Deployment: Docker, Netlify
+Frontend: React, TailwindCSS.
+Backend: Node.js, Express, JWT, MongoDB.
+Inference Service: FastAPI, TensorFlow, OpenCV.
+Deployment: Docker, Netlify.
 
 🧠 How It Works
 
@@ -40,3 +40,4 @@ The result is stored in MongoDB and displayed to the user.
 🧰 Example Output
 
 FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
+
