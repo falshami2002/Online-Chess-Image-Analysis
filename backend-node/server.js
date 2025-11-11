@@ -17,6 +17,11 @@ app.use(cors({
   credentials: true
 }));
 
+app.options('*', cors({
+  origin: ['http://localhost:5173', 'https://online-chess-image-analysis.netlify.app'],
+  credentials: true
+}));;
+
 app.use(cookieParser());
 
 app.set("trust proxy", 1);
