@@ -12,26 +12,10 @@ app.use(express.json());
 const upload = multer({ dest: "uploads/" });
 const PORT = process.env.PORT || 3000;
 
-const corsOptions = {
+app.use(cors({
   origin: ['http://localhost:5173', 'https://online-chess-image-analysis.netlify.app'],
-  credentials: true,
-};
-
-const allowed = ['http://localhost:5173', 'https://online-chess-image-analysis.netlify.app'];
-        
-app.use(cors({ origin: allowed, credentials: true }));
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (!origin || allowed.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin || allowed[0]);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  }
-  if (req.method === 'OPTIONS') return res.sendStatus(204);  
-  next();
-});
+  credentials: true
+}));
 
 app.use(cookieParser());
 
