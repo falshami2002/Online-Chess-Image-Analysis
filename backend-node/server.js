@@ -108,6 +108,18 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// logout
+app.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,      
+    sameSite: "none",  
+    path: "/",         
+  });
+
+  return res.json({ ok: true });
+});
+
 // get user games
 app.get("/games", verifyToken, async (req, res) => {
   try {
