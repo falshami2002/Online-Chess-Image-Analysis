@@ -176,8 +176,7 @@ app.post("/predict", upload.single("file"), async (req, res) => {
 
         const response = await fetch(PY_BACKEND_URL, {
             method: "POST",
-            body: form,
-            credentials: "include"
+            body: form
         });
 
         const data = await response.json().catch(() => null);
