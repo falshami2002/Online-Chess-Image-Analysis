@@ -12,15 +12,13 @@ app.use(express.json());
 const upload = multer({ dest: "uploads/" });
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
+const corsOptions = {
   origin: ['http://localhost:5173', 'https://online-chess-image-analysis.netlify.app'],
-  credentials: true
-}));
+  credentials: true,
+};
 
-app.options('*', cors({
-  origin: ['http://localhost:5173', 'https://online-chess-image-analysis.netlify.app'],
-  credentials: true
-}));;
+app.use(cors(corsOptions));            
+app.options('/(.*)', cors(corsOptions));
 
 app.use(cookieParser());
 
